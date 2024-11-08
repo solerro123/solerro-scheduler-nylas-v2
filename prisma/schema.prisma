@@ -11,7 +11,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -28,7 +28,9 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   Availability  Availability[]
-  EventType     EventType[]
+  EventType     EventType[]  
+  admin         Boolean?
+  timeZone      String        @default("America/Los_Angeles UTC-08:00")
 }
 
 model Account {
@@ -103,9 +105,29 @@ model EventType {
   description       String
   active            Boolean @default(true)
   videoCallSoftware String  @default("Google Meet")
+  serviceArea       String?  @unique
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   createdAt DateTime @default(now())
 }
+
+
+
+model contacts {
+  id                         String  @id @default(uuid())
+  firstName                  String?
+  lastName                   String?
+  email                      String @unique
+  howmanyLevels              String?
+  atticAccess                String?
+  typeOfMount                String?
+  metersOnSite               String?
+  electricalPanelsOnSite     String?
+  animals                    String?
+  noteToInstallerFromSR      String?
+
+  createdAt DateTime @default(now())
+}
+

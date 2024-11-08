@@ -13,13 +13,10 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import React from "react";
 
-async function getData(username: string, eventName: string) {
+async function getData(serviceArea: string) {
   const eventType = await prisma.eventType.findFirst({
     where: {
-      url: eventName,
-      user: {
-        username: username,
-      },
+      serviceArea: serviceArea,      
       active: true,
     },
     select: {
@@ -33,6 +30,8 @@ async function getData(username: string, eventName: string) {
         select: {
           image: true,
           name: true,
+          id:true,
+          username: true,
           Availability: {
             select: {
               day: true,
@@ -43,6 +42,7 @@ async function getData(username: string, eventName: string) {
       },
     },
   });
+  // console.log(eventType)
 
   if (!eventType) {
     return notFound();
@@ -55,14 +55,16 @@ const BookingPage = async ({
   params,
   searchParams,
 }: {
-  params: { username: string; eventName: string };
-  searchParams: { date?: string; time?: string; name?: string; electricalPanelsOnSite?: string, animals?: string };
+  params: { serviceArea: string};
+  searchParams: { date?: string; time?: string; firstName?: string; lastName?: string; electricalPanelsOnSite?: string, animals?: string };
 }) => {
   const selectedDate = searchParams.date
     ? new Date(searchParams.date)
     : new Date();
-  const eventType = await getData(params.username, params.eventName);
 
+  
+  const eventType = await getData(params.serviceArea);
+  console.log(eventType.user.username)
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
@@ -123,7 +125,7 @@ const BookingPage = async ({
               action={createMeetingAction}
             >
               <input type="hidden" name="eventTypeId" value={eventType.id} />
-              <input type="hidden" name="username" value={params.username} />
+              <input type="hidden" name="username" value={eventType.user.username || ''} />
               <input type="hidden" name="fromTime" value={searchParams.time} />
               <input type="hidden" name="eventDate" value={searchParams.date} />
               <input
@@ -132,8 +134,14 @@ const BookingPage = async ({
                 value={eventType.duration}
               />
               <div className="flex flex-col gap-y-1">
-                <Label>Your Name</Label>
-                <Input name="name" placeholder="Your Name" defaultValue={searchParams.name || ""}  />
+                <Label>First Name</Label>
+                <Input name="firstName" placeholder="First Name" defaultValue={searchParams.firstName || ""}  />
+              </div>
+
+
+              <div className="flex flex-col gap-y-1">
+                <Label>Last Name</Label>
+                <Input name="lastName" placeholder="Last Name" defaultValue={searchParams.lastName || ""}  />
               </div>
 
               <div className="flex flex-col gap-y-1">
@@ -303,7 +311,7 @@ const BookingPage = async ({
 
             <TimeSlots
               selectedDate={selectedDate}
-              userName={params.username}
+              userName={eventType.user.username || ''}
               meetingDuration={eventType.duration}
             />
           </CardContent>

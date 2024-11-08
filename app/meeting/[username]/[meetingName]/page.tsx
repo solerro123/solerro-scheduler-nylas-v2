@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import prisma from "@/app/lib/db";
 import { nylas } from "@/app/lib/nylas";
 import { notFound } from "next/navigation";

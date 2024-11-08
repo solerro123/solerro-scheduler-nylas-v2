@@ -11,6 +11,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -27,13 +36,21 @@ import { toast } from "sonner";
 interface iAppProps {
   fullName: string;
   email: string;
-
   profileImage: string;
+  existingTimeZone: string;
 }
 
-export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
+import { timeZones } from "../constants/timeZones";
+
+export function SettingsForm({ fullName, email, profileImage, existingTimeZone }: iAppProps) {
+  
+  const [timeZone, setTimeZone] = useState<string>(existingTimeZone);
   const [lastResult, action] = useFormState(SettingsAction, undefined);
   const [currentProfileImage, setCurrentProfileImage] = useState(profileImage);
+
+  const handleTimeZoneChange = (value: string) => {
+    setTimeZone(value);
+  };
 
   const [form, fields] = useForm({
     // Sync the result of last submission
@@ -75,6 +92,33 @@ export function SettingsForm({ fullName, email, profileImage }: iAppProps) {
             <Label>Email</Label>
             <Input disabled placeholder="Jan Marshall" defaultValue={email} />
           </div>
+
+          {/* State Select */}
+          <div className="grid gap-y-2">
+              <Label>State</Label>
+              <Select
+                name={fields.timezone.name}
+                key={fields.timezone.key}
+                value={timeZone} // Bind the selected value to state
+                onValueChange={handleTimeZoneChange} // Update state when the value changes
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>State</SelectLabel>
+                    {timeZones.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-red-500 text-sm">{fields.timezone.errors}</p>
+            </div>
+
 
           <div className="grid gap-y-5">
             <input

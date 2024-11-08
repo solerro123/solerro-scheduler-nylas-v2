@@ -8,7 +8,10 @@ const nextConfig = {
         hostname: "avatars.githubusercontent.com",
         port: "",
         protocol: "https",
-      },
+      },{
+        protocol: 'https',
+        hostname: '**', // Allow all hostnames
+      }
     ],
   },
 };

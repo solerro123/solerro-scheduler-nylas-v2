@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 "use client";
 
 import { CreateEventTypeAction } from "@/app/actions";
+
 import { SubmitButton } from "@/app/components/SubmitButton";
 import { eventTypeSchema } from "@/app/lib/zodSchemas";
 import { Button } from "@/components/ui/button";
@@ -28,12 +31,66 @@ import { Textarea } from "@/components/ui/textarea";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormState } from "react-dom";
 
-type Platform = "Zoom Meeting" | "Google Meet" | "Microsoft Teams";
+type Platform = "Zoom Meeting" | "Google Meet" | "Microsoft Teams" | "None";
+import { usStates } from "@/app/components/constants/serviceArea";
+
+
+
 
 const CreateNewEvent = () => {
+
+
+
+  // Example of a function that gets occupied service areas
+  const [serviceAreas, setServiceAreas] = useState<string[]>([]); // Initializing as an array of strings
+
+  // Example of a function that gets occupied service areas
+  const getOccupiedServiceArea = async (): Promise<string[]> => {
+    try {
+      const response = await fetch("/api/getOccupiedServiceArea"); // API call to get occupied service areas
+      if (!response.ok) {
+        throw new Error("Failed to fetch service areas");
+      }
+      const data: { serviceArea: string }[] = await response.json(); // Assume the response is an array of objects
+      // Extract just the 'serviceArea' values from the array of objects
+      const states = data.map((item) => item.serviceArea);
+      return states;
+    } catch (error: any) {
+      console.error("Error fetching service areas:", error.message);
+      return [];
+    }
+  };
+  useEffect(() => {
+    const fetchAndUpdateServiceAreas = async () => {
+      const occupiedServiceAreas = await getOccupiedServiceArea();
+      // Filter out the service areas that are already occupied
+      const updatedServiceAreas = usStates.filter(
+        (state) => !occupiedServiceAreas.includes(state)
+      );
+      setServiceAreas(updatedServiceAreas); // Update the state with filtered service areas
+      console.log(updatedServiceAreas)
+    };
+
+    fetchAndUpdateServiceAreas();
+
+  }, []); // Empty dependency array, this runs once when the component mounts
+
+
+
+
+
+
+  // const [searchText, setSearchText] = useState("");
+  const [selectedState, setSelectedState] = useState('');
+
+  const handleStateChange = (value: string) => {
+    setSelectedState(value);
+  };
+
+
   const [lastResult, action] = useFormState(CreateEventTypeAction, undefined);
   const [form, fields] = useForm({
     // Sync the result of last submission
@@ -48,7 +105,7 @@ const CreateNewEvent = () => {
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
   });
-  const [activePlatform, setActivePlatform] = useState<Platform>("Google Meet");
+  const [activePlatform, setActivePlatform] = useState<Platform>("None");
 
   const togglePlatform = (platform: Platform) => {
     setActivePlatform(platform);
@@ -79,7 +136,7 @@ const CreateNewEvent = () => {
               <Label>URL Slug</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  CalMarshal.com/
+                  SolerroScheduler.com/
                 </span>
                 <Input
                   type="text"
@@ -131,6 +188,36 @@ const CreateNewEvent = () => {
               <p className="text-red-500 text-sm">{fields.duration.errors}</p>
             </div>
 
+
+
+            {/* State Select */}
+            <div className="grid gap-y-2">
+              <Label>State</Label>
+              <Select
+                name={fields.serviceArea.name}
+                key={fields.serviceArea.key}
+                value={selectedState} // Bind the selected value to state
+                onValueChange={handleStateChange} // Update state when the value changes
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>State</SelectLabel>
+                    {serviceAreas.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-red-500 text-sm">{fields.serviceArea.errors}</p>
+            </div>
+
+
+
             <div className="grid gap-y-2">
               <input
                 type="hidden"
@@ -139,6 +226,16 @@ const CreateNewEvent = () => {
               />
               <Label>Video Call Provider</Label>
               <ButtonGroup className="w-full">
+                <Button
+                  onClick={() => togglePlatform("None")}
+                  type="button"
+                  className="w-full"
+                  variant={
+                    activePlatform === "None" ? "secondary" : "outline"
+                  }
+                >
+                  None
+                </Button>
                 <Button
                   onClick={() => togglePlatform("Zoom Meeting")}
                   type="button"

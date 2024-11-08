@@ -15,6 +15,7 @@ async function getData(id: string) {
       name: true,
       email: true,
       image: true,
+      timeZone: true
     },
   });
 
@@ -33,6 +34,7 @@ const SettingsPage = async () => {
       email={data.email}
       fullName={data.name as string}
       profileImage={data.image as string}
+      existingTimeZone={data.timeZone}
     />
   );
 };

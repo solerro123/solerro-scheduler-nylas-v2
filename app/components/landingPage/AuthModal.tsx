@@ -24,7 +24,7 @@ export function AuthModal() {
         <DialogHeader className="flex-row justify-center items-center gap-x-2">
           <Image src={Logo} className="size-10" alt="Logo" />
           <h4 className="text-3xl font-semibold">
-            Cal<span className="text-primary">Marshal</span>
+            Solerro<span className="text-primary">Scheduler</span>
           </h4>
         </DialogHeader>
         <div className="flex flex-col gap-3 mt-5">
@@ -38,7 +38,7 @@ export function AuthModal() {
             <GoogleAuthButton />
           </form>
 
-          <form
+          {/* <form
             className="w-full"
             action={async () => {
               "use server";
@@ -46,7 +46,7 @@ export function AuthModal() {
             }}
           >
             <GitHubAuthButton />
-          </form>
+          </form> */}
         </div>
       </DialogContent>
     </Dialog>

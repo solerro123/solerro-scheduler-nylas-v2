@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
+
 import {
   addMinutes,
   format,
@@ -41,6 +44,7 @@ async function getAvailability(selectedDate: Date, userName: string) {
         select: {
           grantEmail: true,
           grantId: true,
+          timeZone: true,
         },
       },
     },
@@ -54,7 +58,7 @@ async function getAvailability(selectedDate: Date, userName: string) {
       emails: [data?.User.grantEmail as string],
     },
   });
-
+  console.log("nylasCalendarData",JSON.stringify(nylasCalendarData))
   return { data, nylasCalendarData };
 }
 

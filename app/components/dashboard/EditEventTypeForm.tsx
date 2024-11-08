@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ButtonGroup } from "@/components/ui/ButtonGroup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface iAppProps {
   id: string;
@@ -38,9 +38,13 @@ interface iAppProps {
   description: string;
   duration: number;
   callProvider: string;
+  serviceArea: string;
 }
 
-type Platform = "Zoom Meeting" | "Google Meet" | "Microsoft Teams";
+type Platform = "None" | "Zoom Meeting" | "Google Meet" | "Microsoft Teams";
+import { USState, usStates } from "@/app/components/constants/serviceArea";
+
+
 
 export function EditEventTypeForm({
   description,
@@ -49,7 +53,60 @@ export function EditEventTypeForm({
   url,
   callProvider,
   id,
+  serviceArea
 }: iAppProps) {
+
+    console.log("serviceArea",serviceArea)
+
+
+
+    // Example of a function that gets occupied service areas
+    const [serviceAreas, setServiceAreas] = useState<string[]>([]); // Initializing as an array of strings
+
+    // Example of a function that gets occupied service areas
+    const getOccupiedServiceArea = async (): Promise<string[]> => {
+      try {
+        const response = await fetch("/api/getOccupiedServiceArea"); // API call to get occupied service areas
+        if (!response.ok) {
+          throw new Error("Failed to fetch service areas");
+        }
+        const data: { serviceArea: string }[] = await response.json(); // Assume the response is an array of objects
+        // Extract just the 'serviceArea' values from the array of objects
+        const states = data.map((item) => item.serviceArea);
+        return states;
+      } catch (error: any) {
+        console.error("Error fetching service areas:", error.message);
+        return [];
+      }
+    };
+    useEffect(() => {
+      const fetchAndUpdateServiceAreas = async () => {
+        const occupiedServiceAreas = await getOccupiedServiceArea();
+        // Filter out the service areas that are already occupied
+        const updatedServiceAreas = usStates.filter(
+          (state) => !occupiedServiceAreas.includes(state)
+        );
+        updatedServiceAreas.push(serviceArea as USState)
+        setServiceAreas(updatedServiceAreas); // Update the state with filtered service areas
+        console.log(updatedServiceAreas)
+      };
+  
+      fetchAndUpdateServiceAreas();
+  
+    }, []); // Empty dependency array, this runs once when the component mounts
+  
+
+      // const [searchText, setSearchText] = useState("");
+  const [selectedState, setSelectedState] = useState(String(serviceArea) || 'AK');
+
+  const handleStateChange = (value: string) => {
+    setSelectedState(value);
+  };
+
+
+
+
+
   const [lastResult, action] = useFormState(EditEventTypeAction, undefined);
   const [form, fields] = useForm({
     // Sync the result of last submission
@@ -98,7 +155,7 @@ export function EditEventTypeForm({
               <Label>Url</Label>
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  CalMarshal.com/
+                 SolerroScheduler.com/
                 </span>
                 <Input
                   type="text"
@@ -149,6 +206,37 @@ export function EditEventTypeForm({
 
               <p className="text-red-500 text-sm">{fields.duration.errors}</p>
             </div>
+
+
+
+{/* State Select */}
+<div className="grid gap-y-2">
+              <Label>State</Label>
+              <Select
+                name={fields.serviceArea.name}
+                key={fields.serviceArea.key}
+                value={selectedState} // Bind the selected value to state
+                onValueChange={handleStateChange} // Update state when the value changes
+                
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a state" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>State</SelectLabel>
+                    {serviceAreas.map((state) => (
+                      <SelectItem key={state} value={state}>
+                        {state}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <p className="text-red-500 text-sm">{fields.serviceArea.errors}</p>
+            </div>
+
+
 
             <div className="grid gap-y-2">
               <input

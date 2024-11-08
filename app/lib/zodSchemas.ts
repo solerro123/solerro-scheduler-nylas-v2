@@ -59,6 +59,7 @@ export const aboutSettingsSchema = z.object({
   fullName: z.string().min(3).max(150),
 
   profileImage: z.string(),
+  timezone: z.string()
 });
 
 export const eventTypeSchema = z.object({
@@ -67,6 +68,7 @@ export const eventTypeSchema = z.object({
   url: z.string().min(3).max(150),
   description: z.string().min(3).max(300),
   videoCallSoftware: z.string(),
+  serviceArea: z.string()
 });
 
 export function EventTypeServerSchema(options?: {
@@ -108,5 +110,6 @@ export function EventTypeServerSchema(options?: {
     duration: z.number().min(1).max(100),
     description: z.string().min(3).max(300),
     videoCallSoftware: z.string(),
+    serviceArea: z.string()
   });
 }

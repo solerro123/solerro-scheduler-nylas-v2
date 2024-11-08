@@ -36,7 +36,7 @@ export function Features() {
           Schedule meetings in minutes
         </h1>
         <p className="mt-6 text-base leading-snug text-muted-foreground">
-          With CalMarshal you can schedule meetings in minutes. We make it easy
+          With SolerroScheduler you can schedule meetings in minutes. We make it easy
           for you to schedule meetings in minutes. The meetings are very fast
           and easy to schedule.
         </p>

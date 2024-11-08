@@ -13,6 +13,7 @@ import { redirect } from "next/navigation";
 
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
+import { sub } from "date-fns";
 
 export async function onboardingAction(prevState: any, formData: FormData) {
   const session = await requireUser();
@@ -86,7 +87,6 @@ export async function onboardingAction(prevState: any, formData: FormData) {
       },
     },
   });
-
   return redirect("/onboarding/grant-id");
 }
 
@@ -108,6 +108,7 @@ export async function SettingsAction(prevState: any, formData: FormData) {
     data: {
       name: submission.value.fullName,
       image: submission.value.profileImage,
+      timeZone: submission.value.timezone,
     },
   });
 
@@ -138,19 +139,28 @@ export async function CreateEventTypeAction(
   if (submission.status !== "success") {
     return submission.reply();
   }
+  try {
+    const data = await prisma.eventType.create({
+      data: {
+        title: submission.value.title,
+        duration: submission.value.duration,
+        url: submission.value.url,
+        description: submission.value.description,
+        userId: session.user?.id as string,
+        videoCallSoftware: submission.value.videoCallSoftware,
+        serviceArea: submission.value.serviceArea
+      },
+    });
+    return redirect("/dashboard");
+  }
+  catch (e) {
+    // Log error and provide a better response
+    console.error("Error while creating event type:", e);
+    return {
+      error: "There was an error while creating the event type. Please try again later.",
+    };
+  }
 
-  const data = await prisma.eventType.create({
-    data: {
-      title: submission.value.title,
-      duration: submission.value.duration,
-      url: submission.value.url,
-      description: submission.value.description,
-      userId: session.user?.id as string,
-      videoCallSoftware: submission.value.videoCallSoftware,
-    },
-  });
-
-  return redirect("/dashboard");
 }
 
 export async function EditEventTypeAction(prevState: any, formData: FormData) {
@@ -171,11 +181,9 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
 
     async: true,
   });
-
   if (submission.status !== "success") {
     return submission.reply();
   }
-
   const data = await prisma.eventType.update({
     where: {
       id: formData.get("id") as string,
@@ -187,9 +195,9 @@ export async function EditEventTypeAction(prevState: any, formData: FormData) {
       url: submission.value.url,
       description: submission.value.description,
       videoCallSoftware: submission.value.videoCallSoftware,
+      serviceArea: submission.value.serviceArea
     },
   });
-
   return redirect("/dashboard");
 }
 
@@ -305,6 +313,50 @@ export async function createMeetingAction(formData: FormData) {
     },
   });
 
+  const contact = await prisma.contacts.findFirst({
+    where: {
+      email: formData.get("email")?.toString().toLowerCase() as string,
+    },
+    select: {
+      email: true
+    }
+  })
+
+  if (contact) {
+    await prisma.contacts.update({
+      where: {
+        email: formData.get("email")?.toString().toLowerCase() as string,
+      },
+      data: {
+        firstName: formData.get("firstName")?.toString().toLowerCase(),
+        lastName: formData.get("lastName")?.toString().toLowerCase(),
+        howmanyLevels: formData.get("howmanyLevels")?.toString().toLowerCase(),
+        atticAccess: formData.get("atticAccess")?.toString().toLowerCase(),
+        typeOfMount: formData.get("typeOfMount")?.toString().toLowerCase(),
+        metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
+        electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
+        animals: formData.get("animals")?.toString().toLowerCase(),
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase()
+      },
+    });
+  } else {
+    await prisma.contacts.create({
+      data: {
+        firstName: formData.get("firstName")?.toString().toLowerCase(),
+        lastName: formData.get("lastName")?.toString().toLowerCase(),
+        email: formData.get("email")?.toString().toLowerCase() || "deepeshnfs462@gmail.com",
+        howmanyLevels: formData.get("level")?.toString().toLowerCase(),
+        atticAccess: formData.get("atticAccess")?.toString().toLowerCase(),
+        typeOfMount: formData.get("typeOfMount")?.toString().toLowerCase(),
+        metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
+        electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
+        animals: formData.get("animals")?.toString().toLowerCase(),
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase()
+      }
+    })
+  }
+  console.log("contact:- ", contact)
+
   const formTime = formData.get("fromTime") as string;
   const meetingLength = Number(formData.get("meetingLength"));
   const eventDate = formData.get("eventDate") as string;
@@ -370,4 +422,21 @@ export async function cancelMeetingAction(formData: FormData) {
   });
 
   revalidatePath("/dashboard/meetings");
+}
+
+
+export async function getOccupiedServiceArea() {
+  const eventTypes = await prisma.eventType.findMany({
+    where: {
+      OR: [
+        { serviceArea: { not: "" } },  // Exclude empty strings
+        { serviceArea: null },          // Include null values
+      ],
+      active: true,  // Filter by active status
+    },
+    select: {
+      serviceArea: true,  // Select only the serviceArea field
+    },
+  });
+  return eventTypes;
 }
