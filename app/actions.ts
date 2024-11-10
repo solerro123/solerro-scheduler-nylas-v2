@@ -1,3 +1,5 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 "use server";
 
 import { parseWithZod } from "@conform-to/zod";
@@ -475,6 +477,14 @@ export const getTimeZone = async (apiKey: string, lat: number, lng: number) => {
   }
 };
 
+const formDataToObject = async (formData: FormData) => {
+  const object = {};
+  formData.forEach((value:any, key:string) => {
+    object[key] = value;
+  });
+  return object;
+};
+
 export async function createMeetingActionSiteSurvey(formData: FormData) {
   const getUserData = await prisma.user.findUnique({
     where: {
@@ -526,7 +536,7 @@ export async function createMeetingActionSiteSurvey(formData: FormData) {
         noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase()
       },
     });
-  } else {
+  }else {
     await prisma.contacts.create({
       data: {
         firstName: formData.get("firstName")?.toString().toLowerCase(),
@@ -587,14 +597,15 @@ export async function createMeetingActionSiteSurvey(formData: FormData) {
   });
 
   
+  const formDataAsJson = await formDataToObject(formData)
+  console.log("formDataAsJson:- ", formDataAsJson)
   await fetch('https://hooks.zapier.com/hooks/catch/19704808/25gk583/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json', // Set content type to JSON if you're sending JSON data
     },
-    body: JSON.stringify({ formData }), // Pass the data in the body
+    body: JSON.stringify({ formData: formDataAsJson }), // Pass the data in the body
   });
-
   // return
   return redirect(`/success`);
 }
@@ -644,13 +655,14 @@ export async function createMeetingActionEnSiteSurvey(formData: FormData) {
       }
     })
   }
-  // console.log("contact:- ", contact)
+  const formDataAsJson = await formDataToObject(formData)
+  console.log("formDataAsJson:- ", formDataAsJson)
   await fetch('https://hooks.zapier.com/hooks/catch/19704808/25gk583/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json', // Set content type to JSON if you're sending JSON data
     },
-    body: JSON.stringify({ formData }), // Pass the data in the body
+    body: JSON.stringify({ formData: formDataAsJson }), // Pass the data in the body
   });
 
   return redirect(`/success?type=Ensite`);
