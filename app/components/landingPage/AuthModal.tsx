@@ -6,7 +6,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import Logo from "@/public/logo.png";
+// import Logo from "@/public/logo.png";
+import SolerroLogo from "@/public/solerroLogo.webp";
 import Image from "next/image";
 import GooleLogo from "@/public/google.svg";
 import GitHubLogo from "@/public/github.svg";
@@ -22,7 +23,7 @@ export function AuthModal() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[360px]">
         <DialogHeader className="flex-row justify-center items-center gap-x-2">
-          <Image src={Logo} className="size-10" alt="Logo" />
+          <Image src={SolerroLogo} className="size-12" alt="Logo" />
           <h4 className="text-3xl font-semibold">
             Solerro<span className="text-primary">Scheduler</span>
           </h4>
