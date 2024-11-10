@@ -533,7 +533,9 @@ export async function createMeetingActionSiteSurvey(formData: FormData) {
         metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
         electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
         animals: formData.get("animals")?.toString().toLowerCase(),
-        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase()
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase(),
+        phone: formData.get("phoneNumber")?.toString().toLowerCase(),
+        address: formData.get("address")?.toString().toLowerCase()
       },
     });
   }else {
@@ -548,7 +550,9 @@ export async function createMeetingActionSiteSurvey(formData: FormData) {
         metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
         electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
         animals: formData.get("animals")?.toString().toLowerCase(),
-        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase()
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase(),
+        phone: formData.get("phoneNumber")?.toString().toLowerCase(),
+        address: formData.get("address")?.toString().toLowerCase()
       }
     })
   }
@@ -636,7 +640,9 @@ export async function createMeetingActionEnSiteSurvey(formData: FormData) {
         metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
         electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
         animals: formData.get("animals")?.toString().toLowerCase(),
-        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase()
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase(),
+        phone: formData.get("phoneNumber")?.toString().toLowerCase(),
+        address: formData.get("address")?.toString().toLowerCase()
       },
     });
   } else {
@@ -651,7 +657,9 @@ export async function createMeetingActionEnSiteSurvey(formData: FormData) {
         metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
         electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
         animals: formData.get("animals")?.toString().toLowerCase(),
-        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase()
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase(),
+        phone: formData.get("phoneNumber")?.toString().toLowerCase(),
+        address: formData.get("address")?.toString().toLowerCase()
       }
     })
   }
