@@ -9,8 +9,8 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
     e.preventDefault();
     setBookingFormFilled(true); // This will set the booking form state to true when the form is submitted
     // You could submit bookingFormData here if necessary
-    console.log("form data is ", bookingFormData);
-    console.log("Form Submitted", bookingFormData);
+    // console.log("form data is ", bookingFormData);
+    // console.log("Form Submitted", bookingFormData);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -22,15 +22,19 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
   };
 
   useEffect(() => {
+    // console.log("searchParams:-  ",searchParams)
+
     // Only update the state if the bookingFormData is not already populated
+    // console.log("bookingFormData", bookingFormData)
     setBookingFormData((prevState: any) => {
       if (Object.keys(prevState).length === 0) { // Check if the form data is empty
         return {
           firstName: searchParams.firstName || "",
           lastName: searchParams.lastName || "",
-          email: searchParams.email || "",
-          level: searchParams.level || "One", // Default level
-          atticAccess: searchParams.atticAccess || "In Garage", // Default atticAccess
+          email: searchParams.email,
+          level: searchParams.level, // Default level
+          salesRepName: searchParams.salesRepName,
+          atticAccess: searchParams.atticAccess || "", // Default atticAccess
           typeOfMount: searchParams.typeOfMount || "Roof Mount", // Default typeOfMount
           metersOnSite: searchParams.metersOnSite || "One", // Default metersOnSite
           electricalPanelsOnSite: searchParams.electricalPanelsOnSite || "One", // Default electricalPanelsOnSite
@@ -51,33 +55,44 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
       <input type="hidden" name="meetingLength" value={eventType.duration || searchParams.meetingLength || ''} required />
 
       <div className="flex flex-col gap-y-1">
-        <Label>First Name</Label>
+        <Label>Customer First Name</Label>
         <Input
           name="firstName"
-          placeholder="First Name"
-          value={bookingFormData.firstName || ""}
+          placeholder="Customer First Name"
+          value={bookingFormData.firstName || searchParams.firstName}
           onChange={handleInputChange}
           required
         />
       </div>
 
       <div className="flex flex-col gap-y-1">
-        <Label>Last Name</Label>
+        <Label>Customer Last Name</Label>
         <Input
           name="lastName"
-          placeholder="Last Name"
-          value={bookingFormData.lastName || ""}
+          placeholder="Customer Last Name"
+          value={bookingFormData.lastName || searchParams.lastName}
           onChange={handleInputChange}
           required
         />
       </div>
 
       <div className="flex flex-col gap-y-1">
-        <Label>Your Email</Label>
+        <Label>Customer Email</Label>
         <Input
           name="email"
           placeholder="johndoe@gmail.com"
-          value={bookingFormData.email || ""}
+          value={bookingFormData.email || searchParams.email}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+
+      <div className="flex flex-col gap-y-1">
+        <Label>Sales Rep Name</Label>
+        <Input
+          name="salesRepName"
+          placeholder="johndoe@gmail.com"
+          value={bookingFormData.salesRepName || searchParams.salesRepName}
           onChange={handleInputChange}
           required
         />
