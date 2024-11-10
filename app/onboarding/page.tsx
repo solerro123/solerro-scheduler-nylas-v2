@@ -17,6 +17,8 @@ import { parseWithZod } from "@conform-to/zod";
 import { onboardingSchemaLocale } from "../lib/zodSchemas";
 import { useForm } from "@conform-to/react";
 import { onboardingAction } from "../actions";
+import SolerroLogo from "@/public/solerroLogo.webp";
+import Image from "next/image";
 
 const OnboardingPage = () => {
   const [lastResult, action] = useFormState(onboardingAction, undefined);
@@ -38,7 +40,10 @@ const OnboardingPage = () => {
     <div className="h-screen w-screen flex items-center justify-center">
       <Card>
         <CardHeader>
-          <CardTitle>Welcome to CalMarshal</CardTitle>
+        <Image src={SolerroLogo} className="size-10 justify-center" alt="Logo" />
+          <CardTitle>Welcome to 
+          <span className="text-primary"> Solerro</span>Scheduler
+          </CardTitle>
           <CardDescription>
             We need the following information to set up your profile
           </CardDescription>
@@ -52,7 +57,7 @@ const OnboardingPage = () => {
                 name={fields.fullName.name}
                 defaultValue={fields.fullName.initialValue}
                 key={fields.fullName.key}
-                placeholder="Jan marshal"
+                placeholder="Jack Sparrow"
               />
               <p className="text-red-500 text-sm">{fields.fullName.errors}</p>
             </div>
@@ -61,14 +66,14 @@ const OnboardingPage = () => {
 
               <div className="flex rounded-md">
                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-muted bg-muted text-muted-foreground text-sm">
-                  CalMarshal.com/
+                ss.solerro.com/ 
                 </span>
                 <Input
                   type="text"
                   key={fields.username.key}
                   defaultValue={fields.username.initialValue}
                   name={fields.username.name}
-                  placeholder="example-user-1"
+                  placeholder="jack-sparrow-123"
                   className="rounded-l-none"
                 />
               </div>
