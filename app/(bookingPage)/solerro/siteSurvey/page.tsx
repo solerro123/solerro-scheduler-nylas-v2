@@ -67,26 +67,27 @@ function SiteSurvey() {
     const mapRef = useRef<google.maps.Map | null>(null)
     const [addressTimeZone, setAddressTimeZone] = useState(Intl.DateTimeFormat().resolvedOptions().timeZone)
     const [latLon, setLatLon] = useState({ lat: '', lon: '' })
+    // Convert all search params to an object in one line
+    const paramsObject = Object.fromEntries(searchParams.entries());
     const [bookingFormData, setBookingFormData] = useState({
-        firstName: "",
-        lastName: "",
-        email: "",
-        salesRepName:"",
-        level: "",
-        atticAccess: "",
-        typeOfMount: "",
-        metersOnSite: "",
-        electricalPanelsOnSite: "",
-        animals: "",
-        noteToInstallerFromSalesRep: ""
+        firstName: paramsObject.firstName,
+        lastName: paramsObject.lastName,
+        email: paramsObject.email,
+        salesRepName: paramsObject.salesRepName,
+        level: paramsObject.level,
+        atticAccess: paramsObject.atticAccess,
+        typeOfMount: paramsObject.typeOfMount,
+        metersOnSite: paramsObject.metersOnSite,
+        electricalPanelsOnSite: paramsObject.electricalPanelsOnSite,
+        animals: paramsObject.animals,
+        noteToInstallerFromSalesRep: paramsObject.noteToInstallerFromSalesRep,
     })
     const [bookingSlots, setBookingSlots] = useState({ timezone: addressTimeZone, date: "", time: "", dateTime: "" })
     const [eventInfo, setEventInfo] = useState({ username: "", eventTypeId: "", meetingLength: "" })
 
    
 
-    // Convert all search params to an object in one line
-    const paramsObject = Object.fromEntries(searchParams.entries());
+    
     // console.log(paramsObject)
     const onMapLoad = useCallback((map: google.maps.Map) => {
         mapRef.current = map
