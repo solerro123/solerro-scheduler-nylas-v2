@@ -6,16 +6,19 @@ import { Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-
+import { format, parseISO } from 'date-fns';
 interface TimeSlot {
   slotname: string;
   totalSurveys: number;
   isdisabled: boolean;
+  bookingSlots: object,
+  setBookingSlots: object,
   value: string;
   displayname: string;
+  handleConfirmBooking: object;
 }
 
-export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTimeZone: string, lat: string, lon: string }) {
+export function BookingModuleEnsite({ bookingSlots, setBookingSlots, addressTimeZone, lat, lon, handleConfirmBooking }: { addressTimeZone: string, lat: string, lon: string }) {
   const ENSITE_ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDA4NiwiaWF0IjoxNzMxMDk3MTkxLCJleHAiOjE3MzM2ODkxOTF9.Fx0lzpKhgSqcdJOYpDjkAUy0vof8wdEKvX34zNkFENw';
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [timer, setTimer] = useState<number | null>(null);
@@ -25,12 +28,14 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null); // Track by slotname
 
   const handleDateSelect = async (date: Date | undefined) => {
-    setSelectedDate(date || null);
+    setSelectedDate(date);
     setPopoverOpen(false);
     setSelectedSlot(null); // Reset selected slot when a new date is chosen
 
     if (date) {
       setIsLoading(true);
+      setTimeSlots([])
+      console.log("lat LogIn ", lat, lon)
       const apiURL = `https://mysites.ensiteservices.com/api/ensite/getslotforsurvey?creatorparentid=1234&date=${date.toISOString().slice(0, 10)}&latitude=${lat}&longitude=${lon}&issurveycreating=true&clientid=7125`;
 
       try {
@@ -45,8 +50,11 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
         if (!response.ok) throw new Error("Network response was not ok");
 
         const data: TimeSlot[] = await response.json();
+        console.log(data)
         setTimeSlots(data);
-        setTimer(25);
+        setIsLoading(false);
+        
+        setTimer(1);
       } catch (error) {
         console.error("Fetch failed:", error);
       } finally {
@@ -66,8 +74,22 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
     return () => clearInterval(interval);
   }, [timer]);
 
-  const handleSlotSelect = (slotname: string) => {
+  const handleSlotSelect = (slotname: string, slotvalue: string) => {
+    console.log(selectedDate, slotname)
     setSelectedSlot(slotname);
+
+    let formattedDate = new Date(selectedDate)
+    formattedDate = new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }).format(selectedDate);
+    
+    console.log(formattedDate);
+    
+    const data = bookingSlots
+    data.date = formattedDate
+    data.time = `${slotname} ${slotvalue}`
   };
 
   const confirmBooking = () => {
@@ -93,7 +115,7 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
             onClick={() => setPopoverOpen(true)}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
-            {selectedDate ? selectedDate.toLocaleDateString() : <span>Pick a date</span>}
+            {selectedDate ? selectedDate.toDateString() : <span>Pick a date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">
@@ -110,7 +132,8 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
 
       {timer !== null && timer > 0 && (
         <div className="text-center mt-2">
-          <p>Time remaining: {timer} seconds</p>
+          {/* <p>Time remaining: {timer} seconds</p> */}
+          <p>Loading....</p>
         </div>
       )}
 
@@ -122,9 +145,9 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
               <Button
                 key={slot.slotname}
                 disabled={slot.isdisabled}
-                onClick={() => handleSlotSelect(slot.slotname)}
-                className={`w-full ${selectedSlot === slot.slotname ? 'bg-primary/90 text-primary border border-primary'  : ''}`} // Apply styles for the selected slot
-                
+                onClick={() => handleSlotSelect(slot.slotname, slot.value)}
+                className={`w-full ${selectedSlot === slot.slotname ? 'bg-primary/90 text-primary border border-primary' : ''}`} // Apply styles for the selected slot
+
               >
                 {slot.displayname}
               </Button>
@@ -134,7 +157,7 @@ export function BookingModuleEnsite({ addressTimeZone, lat, lon }: { addressTime
       )}
 
       {selectedSlot && (
-        <Button className="w-full" onClick={confirmBooking}>
+        <Button className="w-full" onClick={handleConfirmBooking}>
           Confirm Booking
         </Button>
       )}
