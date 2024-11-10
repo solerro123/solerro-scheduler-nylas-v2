@@ -50,11 +50,12 @@ async function appendToFormData(formData: FormData, dataObject: object) {
 const formData = new FormData()
 
 function SiteSurvey() {
-
+     // const router = useRouter()
+     const searchParams = useSearchParams();
     const [showButton, setShowButton] = useState(true)
     const [siteDistance, setSiteDistance] = useState(0);
     const [isEnsite, setIsEnsite] = useState(true)
-    const [address, setAddress] = useState('')
+    const [address, setAddress] = useState(searchParams.get("address") || "")
     const [isAddressDisabled, setIsAddressDisabled] = useState(false)
     const [bookingFormFilled, setBookingFormFilled] = useState(false)
     const [addressVerified, setAddressVerified] = useState(false)
@@ -70,19 +71,19 @@ function SiteSurvey() {
         firstName: "",
         lastName: "",
         email: "",
-        level: "One",
-        atticAccess: "In Garage",
-        typeOfMount: "Roof Mount",
-        metersOnSite: "One",
-        electricalPanelsOnSite: "One",
-        animals: "None",
+        salesRepName:"",
+        level: "",
+        atticAccess: "",
+        typeOfMount: "",
+        metersOnSite: "",
+        electricalPanelsOnSite: "",
+        animals: "",
         noteToInstallerFromSalesRep: ""
     })
     const [bookingSlots, setBookingSlots] = useState({ timezone: addressTimeZone, date: "", time: "", dateTime: "" })
     const [eventInfo, setEventInfo] = useState({ username: "", eventTypeId: "", meetingLength: "" })
 
-    // const router = useRouter()
-    const searchParams = useSearchParams();
+   
 
     // Convert all search params to an object in one line
     const paramsObject = Object.fromEntries(searchParams.entries());
@@ -105,6 +106,7 @@ function SiteSurvey() {
             setLatLon({ lat: lat.toString(), lon: lng.toString() })
             // Calculate the distance
             const distance = await haversineDistance(lat, lng, targetLat, targetLng);
+            console.log(`Distance from 9901 United Drive, Houston, TX 77036:${siteDistance}`)
             setSiteDistance(distance);
             // console.log(distance)
             if (distance < 60) {
@@ -185,6 +187,7 @@ function SiteSurvey() {
                                         }}
                                         onPlaceChanged={handlePlaceSelect}
                                         className="w-full"
+                                        
                                     >
                                         <Input
                                             id="address"
@@ -193,6 +196,7 @@ function SiteSurvey() {
                                             onChange={(e) => setAddress(e.target.value)}
                                             className="w-full pl-10"
                                             disabled={isAddressDisabled}
+                                            defaultValue={address}
                                         />
                                     </Autocomplete>
                                 </div>
@@ -208,10 +212,10 @@ function SiteSurvey() {
                                     </Button>
                                     )}
 
-                                    <div className="mt-4">
+                                    {/* <div className="mt-4">
                                         <h3>Distance from 9901 United Drive, Houston, TX 77036:</h3>
                                         <p>{siteDistance} Miles</p>
-                                    </div>
+                                    </div> */}
                                 </>
                             )}
 
@@ -228,12 +232,12 @@ function SiteSurvey() {
                                     <div className="mt-4">
                                         {isEnsite ? (
                                             <>
-                                                <div>Loading Ensite Calendar</div>
+                                                {/* <div>Loading Ensite Calendar</div> */}
                                                 <BookingModuleEnsite bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} lat={latLon.lat} lon={latLon.lon} />
                                             </>
                                         ) : (
                                             <>
-                                                <div>Loading SiteSurvey Calendar</div>
+                                                {/* <div>Loading SiteSurvey Calendar</div> */}
                                                 <BookingModule eventInfo={eventInfo} setEventInfo={setEventInfo} handleConfirmBooking={handleConfirmBooking} bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} serviceArea={state} />
                                             </>
                                         )}
