@@ -25,12 +25,13 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
     // console.log("searchParams:-  ",searchParams)
 
     // Only update the state if the bookingFormData is not already populated
-    //console.log("bookingFormData", bookingFormData)
+    // console.log("bookingFormData", bookingFormData)
     setBookingFormData((prevState: any) => {
       if (Object.keys(prevState).length === 0) { // Check if the form data is empty
         return {
           firstName: searchParams.firstName || prevState.firstName,
           lastName: searchParams.lastName || prevState.lastName,
+          phoneNumber: searchParams.phoneNumber || prevState.phoneNumber,
           email: searchParams.email || prevState.email,
           salesRepName: searchParams.salesRepName || prevState.salesRepName,
           level: searchParams.level, // Default level          
@@ -40,6 +41,7 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
           electricalPanelsOnSite: searchParams.electricalPanelsOnSite || "One", // Default electricalPanelsOnSite
           animals: searchParams.animals || "None", // Default animals
           noteToInstallerFromSalesRep: searchParams.noteToInstallerFromSalesRep || "",
+          
         };
       }
       return prevState;
@@ -71,6 +73,18 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
           name="lastName"
           placeholder="Customer Last Name"
           value={bookingFormData.lastName}
+          onChange={handleInputChange}
+          required
+        />
+      </div>
+
+      <div className="flex flex-col gap-y-1">
+        <Label>Customer Phone Number</Label>
+        <Input
+          name="phoneNumber"
+          type="tel" // Use type="tel" for phone number input
+          placeholder="+1 234 567 890"
+          value={bookingFormData.phoneNumber}
           onChange={handleInputChange}
           required
         />
