@@ -127,6 +127,8 @@ model contacts {
   electricalPanelsOnSite     String?
   animals                    String?
   noteToInstallerFromSR      String?
+  address                    String?
+  phone                      String?
 
   createdAt DateTime @default(now())
 }
