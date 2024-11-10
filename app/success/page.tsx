@@ -5,12 +5,17 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Check } from "lucide-react";
 import Link from "next/link";
+import SolerroLogo from "@/public/solerroLogo.webp";
+import Image from "next/image";
 
 export default function SuccessPage() {
   return (
     <div className="h-screen w-screen flex items-center justify-center">
+      
       <Card className="max-w-[400px] w-full mx-auto">
+      
         <CardContent className="p-6 flex flex-col w-full items-center">
+        <Image src={SolerroLogo} className="size-18 py-6 justify-center" alt="Logo" />
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
             <Check className="w-8 h-8 text-green-500" />
           </div>
@@ -46,11 +51,11 @@ export default function SuccessPage() {
             </div>
           </div> */}
         </CardContent>
-        <CardFooter>
+        {/* <CardFooter>
           <Button className="w-full" asChild>
             <Link href="/">Close this Page</Link>
           </Button>
-        </CardFooter>
+        </CardFooter> */}
       </Card>
     </div>
   );
