@@ -13,15 +13,16 @@ import {
 
 interface iAppProps {
   daysofWeek: { day: string; isActive: boolean }[];
+  selectedTimezone: string;
 }
 
-export function RenderCalendar({ daysofWeek }: iAppProps) {
+export function RenderCalendar({ daysofWeek, selectedTimezone }: iAppProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const [date, setDate] = useState<CalendarDate>(() => {
     const dateParam = searchParams.get("date");
-    return dateParam ? parseDate(dateParam) : today(getLocalTimeZone());
+    return dateParam ? parseDate(dateParam) : today(selectedTimezone); //return dateParam ? parseDate(dateParam) : today(getLocalTimeZone());
   });
 
   useEffect(() => {
@@ -42,19 +43,23 @@ export function RenderCalendar({ daysofWeek }: iAppProps) {
   };
 
   const isDateUnavailable = (date: DateValue) => {
-    const dayOfWeek = date.toDate(getLocalTimeZone()).getDay();
+    const dayOfWeek = date.toDate(selectedTimezone).getDay();
+    // const dayOfWeek = date.toDate(getLocalTimeZone()).getDay();
     // Adjust the index to match the daysofWeek array
     const adjustedIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     return !daysofWeek[adjustedIndex].isActive;
   };
 
+  console.log("local timezone is:-",getLocalTimeZone())
+  // console.log(Intl.supportedValuesOf("timeZone"))
   return (
     <Calendar
-      minValue={today(getLocalTimeZone())}
-      defaultValue={today(getLocalTimeZone())}
+      minValue={today(selectedTimezone)}   //minValue={today(getLocalTimeZone())}
+      defaultValue={today(selectedTimezone)}   //defaultValue={today(getLocalTimeZone())}
       value={date}
       onChange={handleChangeDate}
       isDateUnavailable={isDateUnavailable}
+      selectedTimezone={selectedTimezone}
     />
   );
 }

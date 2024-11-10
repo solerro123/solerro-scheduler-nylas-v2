@@ -14,6 +14,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { nylas } from "./lib/nylas";
 import { sub } from "date-fns";
+import { Console } from "console";
 
 export async function onboardingAction(prevState: any, formData: FormData) {
   const session = await requireUser();
@@ -424,7 +425,6 @@ export async function cancelMeetingAction(formData: FormData) {
   revalidatePath("/dashboard/meetings");
 }
 
-
 export async function getOccupiedServiceArea() {
   const eventTypes = await prisma.eventType.findMany({
     where: {
@@ -439,4 +439,205 @@ export async function getOccupiedServiceArea() {
     },
   });
   return eventTypes;
+}
+
+export const haversineDistance =async (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 3959; // Earth radius in miles
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = R * c; // Distance in miles
+  return distance;
+};
+
+// Function to get the time zone from Google Maps Time Zone API
+export const getTimeZone = async (apiKey:string, lat: number, lng: number) => {
+
+  // return Intl.DateTimeFormat().resolvedOptions().timeZone
+  const timestamp = Date.now() / 1000; // Current timestamp in seconds
+  // const apiKey = 'YOUR_GOOGLE_MAPS_API_KEY'; // Replace with your API key
+  const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${lat},${lng}&timestamp=${timestamp}&key=${apiKey}`;
+  console.log(url)
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    if (data.status === "OK") {
+      return data.timeZoneId; // Return the time zone ID, e.g., "America/Chicago"
+    } else {
+      throw new Error("Unable to fetch time zone");
+    }
+  } catch (error) {
+    console.error("Error fetching time zone:", error);
+    return "Unknown Time Zone";
+  }
+};
+
+export async function createMeetingActionSiteSurvey(formData: FormData) {
+  const getUserData = await prisma.user.findUnique({
+    where: {
+      username: formData.get("username") as string,
+    },
+    select: {
+      grantEmail: true,
+      grantId: true,
+    },
+  });
+
+  if (!getUserData) {
+    throw new Error("User not found");
+  }
+
+  const eventTypeData = await prisma.eventType.findUnique({
+    where: {
+      id: formData.get("eventTypeId") as string,
+    },
+    select: {
+      title: true,
+      description: true,
+    },
+  });
+
+  const contact = await prisma.contacts.findFirst({
+    where: {
+      email: formData.get("email")?.toString().toLowerCase() as string,
+    },
+    select: {
+      email: true
+    }
+  })
+
+  if (contact) {
+    await prisma.contacts.update({
+      where: {
+        email: formData.get("email")?.toString().toLowerCase() as string,
+      },
+      data: {
+        firstName: formData.get("firstName")?.toString().toLowerCase(),
+        lastName: formData.get("lastName")?.toString().toLowerCase(),
+        howmanyLevels: formData.get("howmanyLevels")?.toString().toLowerCase(),
+        atticAccess: formData.get("atticAccess")?.toString().toLowerCase(),
+        typeOfMount: formData.get("typeOfMount")?.toString().toLowerCase(),
+        metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
+        electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
+        animals: formData.get("animals")?.toString().toLowerCase(),
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase()
+      },
+    });
+  } else {
+    await prisma.contacts.create({
+      data: {
+        firstName: formData.get("firstName")?.toString().toLowerCase(),
+        lastName: formData.get("lastName")?.toString().toLowerCase(),
+        email: formData.get("email")?.toString().toLowerCase() || "deepeshnfs462@gmail.com",
+        howmanyLevels: formData.get("level")?.toString().toLowerCase(),
+        atticAccess: formData.get("atticAccess")?.toString().toLowerCase(),
+        typeOfMount: formData.get("typeOfMount")?.toString().toLowerCase(),
+        metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
+        electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
+        animals: formData.get("animals")?.toString().toLowerCase(),
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase()
+      }
+    })
+  }
+  // console.log("contact:- ", contact)
+
+  const meetingLength = Number(formData.get("meetingLength"));
+  const requestTime = formData.get("dateTime") as string;
+  console.log("requestTime requestTime ", requestTime)
+  const startDateTime = new Date(requestTime);
+
+  // Calculate the end time by adding the meeting length (in minutes) to the start time
+  const endDateTime = new Date(startDateTime.getTime() + meetingLength * 60000);
+
+  const description = eventTypeData?.description;
+  // formData.forEach((value, key) => {
+  //   description += `${key}: ${value}\n`; // Add each field and its value to the description
+  // });
+  console.log("startDateTime", startDateTime, endDateTime)
+  const name = `${formData.get("firstName")} ${formData.get("lastName")}`
+  // return
+  const status = await nylas.events.create({
+    identifier: getUserData?.grantId as string,
+    requestBody: {
+      title: eventTypeData?.title,
+      description: description,
+      when: {
+        startTime: Math.floor(startDateTime.getTime() / 1000),
+        endTime: Math.floor(endDateTime.getTime() / 1000),
+      },
+      conferencing: {
+        autocreate: {},
+        provider: "Google Meet",
+      },
+      participants: [
+        {
+          name: name as string,
+          email: formData.get("email") as string,
+          status: "yes",
+        },
+      ],
+    },
+    queryParams: {
+      calendarId: getUserData?.grantEmail as string,
+      notifyParticipants: true,
+    },
+  });
+
+  console.log(JSON.stringify(status))
+  return 
+  // return redirect(`/success`);
+}
+
+
+export async function createMeetingActionEnSiteSurvey(formData: FormData) {
+  
+  const contact = await prisma.contacts.findFirst({
+    where: {
+      email: formData.get("email")?.toString().toLowerCase() as string,
+    },
+    select: {
+      email: true
+    }
+  })
+
+  if (contact) {
+    await prisma.contacts.update({
+      where: {
+        email: formData.get("email")?.toString().toLowerCase() as string,
+      },
+      data: {
+        firstName: formData.get("firstName")?.toString().toLowerCase(),
+        lastName: formData.get("lastName")?.toString().toLowerCase(),
+        howmanyLevels: formData.get("howmanyLevels")?.toString().toLowerCase(),
+        atticAccess: formData.get("atticAccess")?.toString().toLowerCase(),
+        typeOfMount: formData.get("typeOfMount")?.toString().toLowerCase(),
+        metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
+        electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
+        animals: formData.get("animals")?.toString().toLowerCase(),
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSR")?.toString().toLowerCase()
+      },
+    });
+  } else {
+    await prisma.contacts.create({
+      data: {
+        firstName: formData.get("firstName")?.toString().toLowerCase(),
+        lastName: formData.get("lastName")?.toString().toLowerCase(),
+        email: formData.get("email")?.toString().toLowerCase() || "deepeshnfs462@gmail.com",
+        howmanyLevels: formData.get("level")?.toString().toLowerCase(),
+        atticAccess: formData.get("atticAccess")?.toString().toLowerCase(),
+        typeOfMount: formData.get("typeOfMount")?.toString().toLowerCase(),
+        metersOnSite: formData.get("metersOnSite")?.toString().toLowerCase(),
+        electricalPanelsOnSite: formData.get("electricalPanelsOnSite")?.toString().toLowerCase(),
+        animals: formData.get("animals")?.toString().toLowerCase(),
+        noteToInstallerFromSR: formData.get("noteToInstallerFromSalesRep")?.toString().toLowerCase()
+      }
+    })
+  }
+  console.log("contact:- ", contact)
+
+
+  return redirect(`/success?type=Ensite`);
 }

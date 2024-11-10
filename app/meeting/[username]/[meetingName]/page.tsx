@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { BookMarked, CalendarX2, Clock } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { RenderCalendar } from "@/app/components/demo/RenderCalendar";
+import { RenderCalendar } from "@/app/components/calendar/RenderCalendar";
 import { TimeSlots } from "@/app/components/TimeSlots";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";

@@ -14,11 +14,13 @@ export function CalendarCell({
   date,
   currentMonth,
   isUnavailable,
+  selectedTimezone
 }: {
   state: CalendarState;
   date: CalendarDate;
   currentMonth: CalendarDate;
   isUnavailable?: boolean;
+  selectedTimezone: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { cellProps, buttonProps, isSelected, isDisabled, formattedDate } =
@@ -31,7 +33,7 @@ export function CalendarCell({
 
   const isOutsideMonth = !isSameMonth(currentMonth, date);
 
-  const isDateToday = isToday(date, getLocalTimeZone());
+  const isDateToday = isToday(date, selectedTimezone); //const isDateToday = isToday(date, getLocalTimeZone());
 
   return (
     <td

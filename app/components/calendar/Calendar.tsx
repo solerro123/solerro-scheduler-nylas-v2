@@ -7,6 +7,7 @@ import { CalendarGrid } from "./CalendarGrid";
 export function Calendar(
   props: CalendarProps<DateValue> & {
     isDateUnavailable?: (date: DateValue) => boolean;
+    selectedTimezone: string
   }
 ) {
   const { locale } = useLocale();
@@ -33,6 +34,7 @@ export function Calendar(
         <CalendarGrid
           state={state}
           isDateUnavailable={props.isDateUnavailable}
+          selectedTimezone={props.selectedTimezone}
         />
       </div>
     </div>

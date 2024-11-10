@@ -9,17 +9,21 @@ import {
   isBefore,
   parse,
 } from "date-fns";
+
+import {  format as formatInTimeZone } from 'date-fns-tz';
+
 import prisma from "../lib/db";
 import { Prisma } from "@prisma/client";
 import { nylas } from "../lib/nylas";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { NylasResponse, GetFreeBusyResponse } from "nylas";
-
+import { useRouter, useSearchParams } from "next/navigation";
 interface iappProps {
   selectedDate: Date;
   userName: string;
   meetingDuration: number;
+  selectedTimezone: string;
 }
 
 async function getAvailability(selectedDate: Date, userName: string) {
@@ -58,8 +62,20 @@ async function getAvailability(selectedDate: Date, userName: string) {
       emails: [data?.User.grantEmail as string],
     },
   });
+
+  let nylasCalendar = await nylas.calendars.list({
+    identifier: data?.User.grantId as string,    
+  })
+
+  nylasCalendar = nylasCalendar.data.find(calendar => calendar.grantId === data?.User.grantId);
+  const calendarTimezone = nylasCalendar.timeZone;
+
+  // nylas.calendars.
+
+  console.log("user grantId", data?.User.grantId)
+  console.log("nylas calendar is", nylasCalendar)
   console.log("nylasCalendarData",JSON.stringify(nylasCalendarData))
-  return { data, nylasCalendarData };
+  return { data, nylasCalendarData, calendarTimezone};
 }
 
 function calculateAvailableTimeSlots(
@@ -69,7 +85,9 @@ function calculateAvailableTimeSlots(
   },
   nylasData: NylasResponse<GetFreeBusyResponse[]>,
   date: string,
-  duration: number
+  duration: number,
+  nylasCalendarTimezone: string,
+  selectedTimezone: string
 ) {
   const now = new Date(); // Get the current time
 
@@ -113,31 +131,42 @@ function calculateAvailableTimeSlots(
     );
   });
 
+  console.log("freeSlots", freeSlots, selectedTimezone)
   // Format the free slots
-  return freeSlots.map((slot) => format(slot, "HH:mm"));
+  return freeSlots.map((slot) => {
+    console.log("selected Timezone",selectedTimezone)    
+    console.log("Formatting structure is",slot,"-------", format(slot, "HH:mm"), "-----------", formatInTimeZone(slot, "HH:mm", { timeZone: "America/Los_Angeles" })," -------------", format(toZonedTime(slot, selectedTimezone), "HH:mm"))
+    return format(toZonedTime(slot, selectedTimezone), "HH:mm")
+  });
 }
 
 export async function TimeSlots({
   selectedDate,
   userName,
   meetingDuration,
+  selectedTimezone,
 }: iappProps) {
-  const { data, nylasCalendarData } = await getAvailability(
+  const { data, nylasCalendarData, nylasCalendarTimezone } = await getAvailability(
     selectedDate,
     userName
   );
+  
 
+  console.log("selectedTimezone in timeslots.tsx ",selectedTimezone)
+  
   const dbAvailability = { fromTime: data?.fromTime, tillTime: data?.tillTime };
-
+  
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
   const availableSlots = calculateAvailableTimeSlots(
     dbAvailability,
     nylasCalendarData,
     formattedDate,
-    meetingDuration
+    meetingDuration,
+    nylasCalendarTimezone,
+    selectedTimezone 
   );
-
+  console.log("availableSlots", availableSlots)
   return (
     <div>
       <p className="text-base font-semibold">

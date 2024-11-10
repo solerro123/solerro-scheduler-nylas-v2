@@ -11,10 +11,12 @@ export function CalendarGrid({
   state,
   offset = {},
   isDateUnavailable,
+  selectedTimezone,
 }: {
   state: CalendarState;
   offset?: DateDuration;
   isDateUnavailable?: (date: DateValue) => boolean;
+  selectedTimezone: string;
 }) {
   const startDate = state.visibleRange.start.add(offset);
   const endDate = endOfMonth(startDate);
@@ -52,6 +54,7 @@ export function CalendarGrid({
                     date={date}
                     currentMonth={startDate}
                     isUnavailable={isDateUnavailable?.(date)}
+                    selectedTimezone={selectedTimezone}
                   />
                 ) : (
                   <td key={i} />
