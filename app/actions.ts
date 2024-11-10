@@ -441,7 +441,7 @@ export async function getOccupiedServiceArea() {
   return eventTypes;
 }
 
-export const haversineDistance =async (lat1: number, lon1: number, lat2: number, lon2: number) => {
+export const haversineDistance = async (lat1: number, lon1: number, lat2: number, lon2: number) => {
   const R = 3959; // Earth radius in miles
   const dLat = (lat2 - lat1) * (Math.PI / 180);
   const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -454,7 +454,7 @@ export const haversineDistance =async (lat1: number, lon1: number, lat2: number,
 };
 
 // Function to get the time zone from Google Maps Time Zone API
-export const getTimeZone = async (apiKey:string, lat: number, lng: number) => {
+export const getTimeZone = async (apiKey: string, lat: number, lng: number) => {
 
   // return Intl.DateTimeFormat().resolvedOptions().timeZone
   const timestamp = Date.now() / 1000; // Current timestamp in seconds
@@ -586,14 +586,22 @@ export async function createMeetingActionSiteSurvey(formData: FormData) {
     },
   });
 
-  console.log(JSON.stringify(status))
-  return 
-  // return redirect(`/success`);
+  
+  await fetch('https://hooks.zapier.com/hooks/catch/19704808/25gk583/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', // Set content type to JSON if you're sending JSON data
+    },
+    body: JSON.stringify({ formData }), // Pass the data in the body
+  });
+
+  // return
+  return redirect(`/success`);
 }
 
 
 export async function createMeetingActionEnSiteSurvey(formData: FormData) {
-  
+
   const contact = await prisma.contacts.findFirst({
     where: {
       email: formData.get("email")?.toString().toLowerCase() as string,
@@ -636,8 +644,14 @@ export async function createMeetingActionEnSiteSurvey(formData: FormData) {
       }
     })
   }
-  console.log("contact:- ", contact)
-
+  // console.log("contact:- ", contact)
+  await fetch('https://hooks.zapier.com/hooks/catch/19704808/25gk583/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json', // Set content type to JSON if you're sending JSON data
+    },
+    body: JSON.stringify({ formData }), // Pass the data in the body
+  });
 
   return redirect(`/success?type=Ensite`);
 }

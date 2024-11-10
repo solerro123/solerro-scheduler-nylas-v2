@@ -25,13 +25,7 @@ const GOOGLE_MAPS_API = 'AIzaSyDKm5SrUJNPaQOU0lpa6swSWkiuKTpzEN0'
 
 const confirmBooking = async (formData, isEnsite) => {
     try {
-        // await fetch('https://hooks.zapier.com/hooks/catch/19704808/25gk583/', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json', // Set content type to JSON if you're sending JSON data
-        //     },
-        //     body: JSON.stringify({ formData }), // Pass the data in the body
-        // });
+        
         if (!isEnsite) {
             const result = await createMeetingActionSiteSurvey(formData);
             return result; // return result if you want to handle it elsewhere
@@ -55,7 +49,7 @@ async function appendToFormData(formData: FormData, dataObject: object) {
 
 const formData = new FormData()
 
-export default function SiteSurvey() {
+function SiteSurvey() {
 
     const [showButton, setShowButton] = useState(true)
     const [siteDistance, setSiteDistance] = useState(0);
@@ -159,122 +153,131 @@ export default function SiteSurvey() {
     }
 
     return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <LoadScript
-                googleMapsApiKey={GOOGLE_MAPS_API}
-                libraries={libraries as any}
-            >
-                <Card className="w-full max-w-4xl mx-auto p-1">
-                    <CardHeader className="text-center">
-                        <div className="flex justify-center mb-4">
-                            <Image
-                                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Sol%20Logo-ALAxHZ7LTdpSeW1ipOPaZfUCVDGoAC.png"
-                                alt="Solerro Logo"
-                                width={100}
-                                height={100}
-                            />
-                        </div>
-                        <CardTitle>Book a Site Survey</CardTitle>
-                        <CardDescription>Enter your address to begin scheduling a survey</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-4 flex flex-col"> {/* Lazy load the BookingForm justify-center items-center*/}
-                                <div className="space-y-2 w-full">
-                                    <Label htmlFor="address">Address</Label>
 
-                                    <div className="relative w-full">
-                                        <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                                        <Autocomplete
-                                            onLoad={(autocomplete) => {
-                                                autocompleteRef.current = autocomplete;
-                                            }}
-                                            onPlaceChanged={handlePlaceSelect}
-                                            className="w-full"
-                                        >
-                                            <Input
-                                                id="address"
-                                                placeholder="Enter survey address"
-                                                value={address}
-                                                onChange={(e) => setAddress(e.target.value)}
-                                                className="w-full pl-10"
-                                                disabled={isAddressDisabled}
-                                            />
-                                        </Autocomplete>
-                                    </div>
-                                </div>
-                                {addressVerified && (
-                                    <>
-                                        {showButton && (<Button
-                                            className="w-full mt-4"
-                                            onClick={handleProceedToBooking}
-                                            disabled={isLoading}
-                                        >
-                                            {isLoading ? 'Processing...' : 'Proceed to Booking'}
-                                        </Button>
-                                        )}
+        <LoadScript
+            googleMapsApiKey={GOOGLE_MAPS_API}
+            libraries={libraries as any}
+        >
+            <Card className="w-full max-w-4xl mx-auto p-1">
+                <CardHeader className="text-center">
+                    <div className="flex justify-center mb-4">
+                        <Image
+                            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Sol%20Logo-ALAxHZ7LTdpSeW1ipOPaZfUCVDGoAC.png"
+                            alt="Solerro Logo"
+                            width={100}
+                            height={100}
+                        />
+                    </div>
+                    <CardTitle>Book a Site Survey</CardTitle>
+                    <CardDescription>Enter your address to begin scheduling a survey</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-4 flex flex-col"> {/* Lazy load the BookingForm justify-center items-center*/}
+                            <div className="space-y-2 w-full">
+                                <Label htmlFor="address">Address</Label>
 
-                                        <div className="mt-4">
-                                            <h3>Distance from 9901 United Drive, Houston, TX 77036:</h3>
-                                            <p>{siteDistance} Miles</p>
-                                        </div>
-                                    </>
-                                )}
-
-                                {/* Lazy load the BookingForm */}
-                                {showForm && !bookingFormFilled && (
-                                    <Suspense fallback={<div>Loading form...</div>}>
-                                        <BookingForm bookingFormData={bookingFormData} setBookingFormData={setBookingFormData} eventType={{ id: 1, username: "deefault462" }} searchParams={paramsObject} bookingFormFilled={bookingFormFilled} setBookingFormFilled={setBookingFormFilled} />
-                                    </Suspense>
-                                )}
-
-                                {/* Lazy load the BookingForm */}
-                                {bookingFormFilled && (
-                                    <>
-                                        <div className="mt-4">
-                                            {isEnsite ? (
-                                                <>
-                                                    <div>Loading Ensite Calendar</div>
-                                                    <BookingModuleEnsite bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} lat={latLon.lat} lon={latLon.lon} />
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div>Loading SiteSurvey Calendar</div>
-                                                    <BookingModule eventInfo={eventInfo} setEventInfo={setEventInfo} handleConfirmBooking={handleConfirmBooking} bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} serviceArea={state} />
-                                                </>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                            <div className="space-y-4">
-                                <Label>Location</Label>
-                                <div className="h-[400px] w-full">
-                                    <GoogleMap
-                                        mapContainerStyle={{ width: '100%', height: '100%' }}
-                                        center={mapCenter}
-                                        zoom={19}
-                                        mapTypeId="satellite"
-                                        onLoad={onMapLoad}
-                                        options={{
-                                            disableDefaultUI: true,
-                                            zoomControl: false,
-                                            mapTypeControl: false,
-                                            scaleControl: false,
-                                            streetViewControl: false,
-                                            rotateControl: false,
-                                            fullscreenControl: false,
+                                <div className="relative w-full">
+                                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
+                                    <Autocomplete
+                                        onLoad={(autocomplete) => {
+                                            autocompleteRef.current = autocomplete;
                                         }}
+                                        onPlaceChanged={handlePlaceSelect}
+                                        className="w-full"
                                     >
-                                        <Marker position={mapCenter} />
-                                    </GoogleMap>
+                                        <Input
+                                            id="address"
+                                            placeholder="Enter survey address"
+                                            value={address}
+                                            onChange={(e) => setAddress(e.target.value)}
+                                            className="w-full pl-10"
+                                            disabled={isAddressDisabled}
+                                        />
+                                    </Autocomplete>
                                 </div>
                             </div>
-                        </div>
+                            {addressVerified && (
+                                <>
+                                    {showButton && (<Button
+                                        className="w-full mt-4"
+                                        onClick={handleProceedToBooking}
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? 'Processing...' : 'Proceed to Booking'}
+                                    </Button>
+                                    )}
 
-                    </CardContent>
-                </Card>
-            </LoadScript>
-        </Suspense>
+                                    <div className="mt-4">
+                                        <h3>Distance from 9901 United Drive, Houston, TX 77036:</h3>
+                                        <p>{siteDistance} Miles</p>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Lazy load the BookingForm */}
+                            {showForm && !bookingFormFilled && (
+                                <Suspense fallback={<div>Loading form...</div>}>
+                                    <BookingForm bookingFormData={bookingFormData} setBookingFormData={setBookingFormData} eventType={{ id: 1, username: "deefault462" }} searchParams={paramsObject} bookingFormFilled={bookingFormFilled} setBookingFormFilled={setBookingFormFilled} />
+                                </Suspense>
+                            )}
+
+                            {/* Lazy load the BookingForm */}
+                            {bookingFormFilled && (
+                                <>
+                                    <div className="mt-4">
+                                        {isEnsite ? (
+                                            <>
+                                                <div>Loading Ensite Calendar</div>
+                                                <BookingModuleEnsite bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} lat={latLon.lat} lon={latLon.lon} />
+                                            </>
+                                        ) : (
+                                            <>
+                                                <div>Loading SiteSurvey Calendar</div>
+                                                <BookingModule eventInfo={eventInfo} setEventInfo={setEventInfo} handleConfirmBooking={handleConfirmBooking} bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} serviceArea={state} />
+                                            </>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        <div className="space-y-4">
+                            <Label>Location</Label>
+                            <div className="h-[400px] w-full">
+                                <GoogleMap
+                                    mapContainerStyle={{ width: '100%', height: '100%' }}
+                                    center={mapCenter}
+                                    zoom={19}
+                                    mapTypeId="satellite"
+                                    onLoad={onMapLoad}
+                                    options={{
+                                        disableDefaultUI: true,
+                                        zoomControl: false,
+                                        mapTypeControl: false,
+                                        scaleControl: false,
+                                        streetViewControl: false,
+                                        rotateControl: false,
+                                        fullscreenControl: false,
+                                    }}
+                                >
+                                    <Marker position={mapCenter} />
+                                </GoogleMap>
+                            </div>
+                        </div>
+                    </div>
+
+                </CardContent>
+            </Card>
+        </LoadScript>
+
     )
 }
+
+
+export default function SiteSurveyWrapper() {
+    return (
+      <Suspense fallback={<div>Loading Site Survey...</div>}>
+        <SiteSurvey />
+      </Suspense>
+    );
+  }
