@@ -25,15 +25,15 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
     // console.log("searchParams:-  ",searchParams)
 
     // Only update the state if the bookingFormData is not already populated
-    // console.log("bookingFormData", bookingFormData)
+    //console.log("bookingFormData", bookingFormData)
     setBookingFormData((prevState: any) => {
       if (Object.keys(prevState).length === 0) { // Check if the form data is empty
         return {
-          firstName: searchParams.firstName || "",
-          lastName: searchParams.lastName || "",
-          email: searchParams.email,
-          level: searchParams.level, // Default level
-          salesRepName: searchParams.salesRepName,
+          firstName: searchParams.firstName || prevState.firstName,
+          lastName: searchParams.lastName || prevState.lastName,
+          email: searchParams.email || prevState.email,
+          salesRepName: searchParams.salesRepName || prevState.salesRepName,
+          level: searchParams.level, // Default level          
           atticAccess: searchParams.atticAccess || "", // Default atticAccess
           typeOfMount: searchParams.typeOfMount || "Roof Mount", // Default typeOfMount
           metersOnSite: searchParams.metersOnSite || "One", // Default metersOnSite
@@ -59,7 +59,7 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
         <Input
           name="firstName"
           placeholder="Customer First Name"
-          value={bookingFormData.firstName || searchParams.firstName}
+          value={bookingFormData.firstName}
           onChange={handleInputChange}
           required
         />
@@ -70,7 +70,7 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
         <Input
           name="lastName"
           placeholder="Customer Last Name"
-          value={bookingFormData.lastName || searchParams.lastName}
+          value={bookingFormData.lastName}
           onChange={handleInputChange}
           required
         />
@@ -81,7 +81,7 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
         <Input
           name="email"
           placeholder="johndoe@gmail.com"
-          value={bookingFormData.email || searchParams.email}
+          value={bookingFormData.email}
           onChange={handleInputChange}
           required
         />
@@ -92,7 +92,7 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
         <Input
           name="salesRepName"
           placeholder="johndoe@gmail.com"
-          value={bookingFormData.salesRepName || searchParams.salesRepName}
+          value={bookingFormData.salesRepName}
           onChange={handleInputChange}
           required
         />
