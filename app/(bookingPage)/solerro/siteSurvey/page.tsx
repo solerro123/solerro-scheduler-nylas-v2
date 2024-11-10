@@ -81,6 +81,7 @@ function SiteSurvey() {
         electricalPanelsOnSite: paramsObject.electricalPanelsOnSite,
         animals: paramsObject.animals,
         noteToInstallerFromSalesRep: paramsObject.noteToInstallerFromSalesRep,
+        phoneNumber: paramsObject.phoneNumber,
     })
     const [bookingSlots, setBookingSlots] = useState({ timezone: addressTimeZone, date: "", time: "", dateTime: "" })
     const [eventInfo, setEventInfo] = useState({ username: "", eventTypeId: "", meetingLength: "" })
