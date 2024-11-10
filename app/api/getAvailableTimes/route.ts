@@ -57,7 +57,7 @@ function generateAvailableSlots(availabilityData: any, timeZone: string): string
       // availableSlots.push(format(currentTime, "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", { timeZone }));
       availableSlots.push(currentTime);
       // Increment by 30 minutes
-      currentTime = addMinutes(currentTime, 30);
+      currentTime = addMinutes(currentTime, 120);
     }
   }
 
