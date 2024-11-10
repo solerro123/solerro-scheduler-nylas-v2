@@ -105,7 +105,7 @@ const BookingForm = ({ eventType, searchParams = {}, bookingFormData, setBooking
         <Label>Sales Rep Name</Label>
         <Input
           name="salesRepName"
-          placeholder="johndoe@gmail.com"
+          placeholder="Armando Salazar"
           value={bookingFormData.salesRepName}
           onChange={handleInputChange}
           required
