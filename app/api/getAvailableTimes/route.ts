@@ -137,7 +137,7 @@ export async function GET(request: Request) {
     });
 
 
-    nylasCalendar = nylasCalendar.data.find(calendar => calendar.grantId === data.grantId);
+    nylasCalendar = nylasCalendar.data.find(calendar => calendar.isPrimary === true);
     // console.log("calendar deatils ", nylasCalendar);
     const calendarTimezone = nylasCalendar?.timezone || "UTC"; // Default to UTC if timezone is not found
 
