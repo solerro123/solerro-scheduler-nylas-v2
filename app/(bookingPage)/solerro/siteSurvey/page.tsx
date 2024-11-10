@@ -107,7 +107,7 @@ function SiteSurvey() {
             setLatLon({ lat: lat.toString(), lon: lng.toString() })
             // Calculate the distance
             const distance = await haversineDistance(lat, lng, targetLat, targetLng);
-            console.log(`Distance from 9901 United Drive, Houston, TX 77036:${siteDistance}`)
+            console.log(`Distance from 9901 United Drive, Houston, TX 77036: ${distance}`)
             setSiteDistance(distance);
             // console.log(distance)
             if (distance < 60) {
@@ -234,7 +234,7 @@ function SiteSurvey() {
                                         {isEnsite ? (
                                             <>
                                                 {/* <div>Loading Ensite Calendar</div> */}
-                                                <BookingModuleEnsite bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} lat={latLon.lat} lon={latLon.lon} />
+                                                <BookingModuleEnsite handleConfirmBooking={handleConfirmBooking} bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} lat={latLon.lat} lon={latLon.lon} />
                                             </>
                                         ) : (
                                             <>
