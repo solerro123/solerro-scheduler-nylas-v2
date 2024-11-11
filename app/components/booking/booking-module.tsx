@@ -36,7 +36,8 @@ type BookingModuleProps = {
 
 const fetchAvailability = async (serviceArea) => {
   try {
-      const response = await fetch(`https://solerro-scheduler-nylas-v2.vercel.app/api/getAvailableTimes?serviceArea=${serviceArea}`);
+    const url = new URL(window.location.href);
+      const response = await fetch(`${url.protocol}//${url.host}/api/getOccupiedServiceArea`); // API call to get occupied service areas
       const data = await response.json();
       if (response.ok) {
           console.log(data)
