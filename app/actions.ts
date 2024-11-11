@@ -428,17 +428,11 @@ export async function cancelMeetingAction(formData: FormData) {
 }
 
 export async function getOccupiedServiceArea() {
-  const eventTypes = await prisma.eventType.findMany({
-    where: {
-      OR: [
-        { serviceArea: { not: "" } },  // Exclude empty strings
-        { serviceArea: null },          // Include null values
-      ],
-      active: true,  // Filter by active status
-    },
+  const eventTypes = await prisma.eventType.findMany({    
     select: {
       serviceArea: true,  // Select only the serviceArea field
     },
+    take: 1000,
   });
   return eventTypes;
 }
