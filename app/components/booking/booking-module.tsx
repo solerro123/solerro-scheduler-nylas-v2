@@ -37,7 +37,7 @@ type BookingModuleProps = {
 const fetchAvailability = async (serviceArea) => {
   try {
     const url = new URL(window.location.href);
-      const response = await fetch(`${url.protocol}//${url.host}/api/getOccupiedServiceArea`); // API call to get occupied service areas
+      const response = await fetch(`${url.protocol}//${url.host}/api/getAvailableTimes?serviceArea=${serviceArea}`); // API call to get occupied service areas
       const data = await response.json();
       if (response.ok) {
           console.log(data)
