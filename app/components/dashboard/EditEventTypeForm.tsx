@@ -66,7 +66,8 @@ export function EditEventTypeForm({
     // Example of a function that gets occupied service areas
     const getOccupiedServiceArea = async (): Promise<string[]> => {
       try {
-        const response = await fetch("https://solerro-scheduler-nylas-v2.vercel.app/api/getOccupiedServiceArea"); // API call to get occupied service areas
+        const url = new URL(window.location.href);
+        const response = await fetch(`${url.protocol}//${url.host}/api/getOccupiedServiceArea`); // API call to get occupied service areas
         if (!response.ok) {
           throw new Error("Failed to fetch service areas");
         }
