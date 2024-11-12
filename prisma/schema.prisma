@@ -106,12 +106,6 @@ model EventType {
   active            Boolean @default(true)
   videoCallSoftware String  @default("Google Meet")
   serviceArea       String?  @unique
-  address           String?
-  city              String?
-  country           String?
-  postalCode        String?
-  latitude          Decimal?
-  longitude         Decimal?
 
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
