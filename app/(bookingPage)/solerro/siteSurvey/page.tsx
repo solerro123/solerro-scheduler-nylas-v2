@@ -52,9 +52,9 @@ const formData = new FormData()
 function SiteSurvey() {
      // const router = useRouter()
      const searchParams = useSearchParams();
-    const [showButton, setShowButton] = useState(true)
+    const [showButton, setShowButton] = useState(false)
     const [siteDistance, setSiteDistance] = useState(0);
-    const [isEnsite, setIsEnsite] = useState(true)
+    const [isEnsite, setIsEnsite] = useState(false)
     const [address, setAddress] = useState(searchParams.get("address") || "")
     const [isAddressDisabled, setIsAddressDisabled] = useState(false)
     const [bookingFormFilled, setBookingFormFilled] = useState(false)
@@ -101,25 +101,19 @@ function SiteSurvey() {
             // Target address (9901 United Drive, Houston, TX 77036)
             const targetLat = 29.6764; // Latitude for 9901 United Drive
             const targetLng = -95.5203; // Longitude for 9901 United Drive
-
-
             const lat = place.geometry.location.lat()
             const lng = place.geometry.location.lng()
+            console.log("address lat and long are:- ", lat, lng)
             setLatLon({ lat: lat.toString(), lon: lng.toString() })
             // Calculate the distance
-            const distance = await haversineDistance(lat, lng, targetLat, targetLng);
-            console.log(`Distance from 9901 United Drive, Houston, TX 77036: ${distance}`)
-            setSiteDistance(distance);
-            // console.log(distance)
-            if (distance < 60) {
-                // console.log("console.log(isEnsite)" , isEnsite)
-                setIsEnsite(false)
-                // console.log(isEnsite)
-            }
+            const url = new URL(window.location.href);
+            let tempState;
             const addressComponents = place.address_components || [];
             addressComponents.forEach(component => {
-                if (component.types.includes('administrative_area_level_1')) {
-                    setState(component.short_name);
+                if (component.types.includes('administrative_area_level_1')) {                   
+                    console.log("state is ", component.long_name)
+                    setState(component.long_name);
+                    tempState = component.long_name
                 }
             });
             setAddress(place.formatted_address || '')
@@ -130,6 +124,19 @@ function SiteSurvey() {
             const timezone = await getTimeZone(GOOGLE_MAPS_API, lat, lng)
 
             setAddressTimeZone(timezone)
+
+            let response = await fetch(`${url.protocol}//${url.host}/api/getAvailableTimeNearestArea?latitude=${lat}&longitude=${lng}&state=${tempState}`); 
+            response = await response.json();
+            console.log(response)
+            const distance=0
+            setSiteDistance(distance);
+            // console.log(distance)
+            if (response.error) {
+                console.log("console.log(isEnsite)" , response.error)
+                setIsEnsite(true)
+                // console.log(isEnsite)
+            }
+            setShowButton(true)
         }
     }
 
@@ -240,7 +247,7 @@ function SiteSurvey() {
                                         ) : (
                                             <>
                                                 {/* <div>Loading SiteSurvey Calendar</div> */}
-                                                <BookingModule eventInfo={eventInfo} setEventInfo={setEventInfo} handleConfirmBooking={handleConfirmBooking} bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} serviceArea={state} />
+                                                <BookingModule state={state} latitude={latLon.lat} longitude={latLon.lon} eventInfo={eventInfo} setEventInfo={setEventInfo} handleConfirmBooking={handleConfirmBooking} bookingSlots={bookingSlots} setBookingSlots={setBookingSlots} addressTimeZone={addressTimeZone} serviceArea={state} />
                                             </>
                                         )}
                                     </div>
